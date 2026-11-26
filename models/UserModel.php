@@ -16,6 +16,24 @@ class UserModel {
         return $st->fetch();
     }
 
+    //phase 3 new sec
+    function isLocked($id){
+        $st = $this->db->prepare("SELECT COUNT(*) FROM `user` WHERE user_id = ? AND locked_until > NOW()");
+        $st->execute([$id]);
+        return $st->fetchColumn() >0;
+    }
+    function addFailed($id){
+        $st = $this->db->prepare("UPDATE `user` SET failed_attempts = failed_attempts + 1 WHERE user_id = ?");
+        $st->execute([$id]);
+        $st= $this->db->prepare("UPDATE `user` SET locked_until = DATE_ADD(NOW(), INTERVAL 15 MINUTE), failed_attempts = 0 WHERE user_id = ? AND failed_attempts >= 5");
+        $st->execute([$id]);
+    }
+    function resetFailed($id) {
+        $st = $this->db->prepare("UPDATE `user` SET failed_attempts = 0, locked_until = NULL WHERE user_id = ?");
+        $st->execute([$id]);
+    }
+    //ENDDDDDD PH3 EDITS
+            
     // adds the user and its admin/professor/student row
     function create($name, $email, $password, $role) {
         $this->db->beginTransaction();
