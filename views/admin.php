@@ -12,7 +12,7 @@ require 'views/layout/header.php';
         <div class="field"><label for="aName">Name</label><input type="text" id="aName" name="name" required></div>
         <div class="field"><label for="aEmail">Email</label><input type="email" id="aEmail" name="email" required></div>
       </div>
-      <div class="field"><label for="aPass">Password</label><input type="password" id="aPass" name="password" required></div>
+      <div class="field"><label for="aPass">Password</label><input type="password" id="aPass" name="password" required  minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="At least 8 characters with uppercase, lowercase, number and special character"></div>
       <button class="btn" type="submit">Create</button>
     </form>
   </div>
