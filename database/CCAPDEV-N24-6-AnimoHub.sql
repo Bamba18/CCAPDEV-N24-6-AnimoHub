@@ -9,8 +9,8 @@ CREATE TABLE `user` (
   password VARCHAR(255) NOT NULL,
   name VARCHAR(100) NOT NULL,
   role ENUM('admin','professor','student') NOT NULL,
-  failed_attempts INT NOT NULL DEFAULT 0,    --NEW ADDITIONS PHASE 333333333
-  locked_until DATETIME NULL                 --NEW ADDITIONS LOGIN LOCKOUT FUNC PH3333333
+  failed_attempts INT NOT NULL DEFAULT 0,    -- NEW ADDITIONS PHASE 333333333
+  locked_until DATETIME NULL                 -- NEW ADDITIONS LOGIN LOCKOUT FUNC PH3333333
 ) ENGINE=InnoDB;
 
 CREATE TABLE admin (
@@ -377,3 +377,14 @@ INSERT INTO enlistment (student_id, section_id, date_enlisted) VALUES
 
 -- take the slots of those enlistments
 UPDATE section SET slots = slots - 1 WHERE section_id IN (1, 4, 6, 8, 10, 13, 14);
+
+CREATE TABLE auth_log (
+  log_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  email VARCHAR(100) NOT NULL,
+  action ENUM('login_success','login_failed','lockout','logout') NOT NULL,
+  ip_address VARCHAR(45) NOT NULL,
+  user_agent VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE SET NULL
+)ENGINE=InnoDB;
