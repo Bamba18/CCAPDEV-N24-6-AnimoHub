@@ -164,8 +164,12 @@ class OrgController extends Controller {
             'officer_hiring' => isset($_POST['officer_hiring']) ? 1 : 0
         ];
 
-        if ($data['description'] == '') {
-            $this->flash('error', 'Description cannot be empty');
+        $err = Validator::firstError([
+            Validator::required($data['description'], 'Description'),
+            Validator::maxLength($data['description'], 1000, 'Description')
+        ]);
+        if ($err) {
+            $this->flash('error', $err);
             $this->go('orgsettings&id=' . $orgId);
         }
         // color must look like #0b6b3a

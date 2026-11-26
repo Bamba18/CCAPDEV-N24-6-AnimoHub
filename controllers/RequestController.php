@@ -56,8 +56,8 @@ class RequestController extends Controller {
             $this->go($back);
         }
 
-        if ($reason == '') {
-            $this->flash('error', 'Please write your reason');
+        if ($reason == '' || mb_strlen($reason) > 500) {
+            $this->flash('error', 'Please write your reason (max 500 characters)');
             $this->go($back);
         }
 
@@ -145,8 +145,8 @@ class RequestController extends Controller {
             $this->flash('error', 'A president cannot resign, ask an admin to change the president');
             $this->go($back);
         }
-        if ($reason == '') {
-            $this->flash('error', 'Please write your reason');
+        if ($reason == '' || mb_strlen($reason) > 500) {
+            $this->flash('error', 'Please write your reason (max 500 characters)');
             $this->go($back);
         }
         if ($this->resignations->hasPending($studentId, $orgId)) {

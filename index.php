@@ -1,13 +1,15 @@
 <?php
 // router, every page goes through here
-require 'security/securityCheck.php';
-startSecureSession();
+session_start();
 require 'config/db.php';
 
-function e($s) { return htmlspecialchars($s ?? ''); }
+function e($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }  // escapes < > " ' so user text can't run as code (XSS)
 
 // member 4: isPresident() and canManageOrg(), also makes $conn for the member 4 models
 require_once 'middlewares/OrgRoleMiddleware.php';
+
+// form validation helper (server side checks)
+require_once 'security/validator.php';
 
 foreach (glob('models/*.php') as $f) require_once $f;
 require_once 'controllers/Controller.php';

@@ -43,8 +43,14 @@ class AnnounceController extends Controller {
         ];
 
         if ($method == 'POST' || $method == 'PUT') {
-            if ($data['title'] == '' || $data['content'] == '') {
-                $this->flash('error', 'Please fill in the title and the message');
+            $err = Validator::firstError([
+                Validator::required($data['title'], 'Title'),
+                Validator::required($data['content'], 'Message'),
+                Validator::maxLength($data['title'], 150, 'Title'),
+                Validator::maxLength($data['content'], 2000, 'Message')
+            ]);
+            if ($err) {
+                $this->flash('error', $err);
                 $this->go($back);
             }
         }

@@ -41,8 +41,16 @@ class EventController extends Controller {
 
         // add and edit need the fields filled in
         if ($method == 'POST' || $method == 'PUT') {
-            if ($data['title'] == '' || $data['place'] == '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['date'])) {
-                $this->flash('error', 'Please fill in the title, date and place');
+            $err = Validator::firstError([
+                Validator::required($data['title'], 'Title'),
+                Validator::required($data['place'], 'Place'),
+                Validator::maxLength($data['title'], 150, 'Title'),
+                Validator::maxLength($data['place'], 150, 'Place'),
+                Validator::date($data['date']),
+                Validator::time($data['time'] ?? '')
+            ]);
+            if ($err) {
+                $this->flash('error', $err);
                 $this->go($back);
             }
         }
