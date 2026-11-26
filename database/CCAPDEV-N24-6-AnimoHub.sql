@@ -8,7 +8,9 @@ CREATE TABLE `user` (
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   name VARCHAR(100) NOT NULL,
-  role ENUM('admin','professor','student') NOT NULL
+  role ENUM('admin','professor','student') NOT NULL,
+  failed_attempts INT NOT NULL DEFAULT 0,    --NEW ADDITIONS PHASE 333333333
+  locked_until DATETIME NULL                 --NEW ADDITIONS LOGIN LOCKOUT FUNC PH3333333
 ) ENGINE=InnoDB;
 
 CREATE TABLE admin (
