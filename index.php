@@ -54,4 +54,3 @@ $c = $routes[$page][0];
 $m = $routes[$page][1];
 $controller = new $c($db);
 $controller->$m();
-?>
