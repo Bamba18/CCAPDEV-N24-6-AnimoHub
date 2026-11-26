@@ -1,6 +1,11 @@
 <?php
 class AuthController extends Controller {
-
+    private $logs;
+    function _construct($db){
+        parent::_construct($db);
+        $this->logs = new loginLog($db);
+    }
+    
     function login() {
         if ($this->user()) $this->go('dashboard');
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
