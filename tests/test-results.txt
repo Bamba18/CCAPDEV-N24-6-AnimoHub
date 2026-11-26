@@ -1,0 +1,20 @@
+PASS  required: normal text
+PASS  required: empty string
+PASS  required: spaces only
+PASS  maxLength: short enough
+PASS  maxLength: exactly the limit
+PASS  maxLength: too long
+PASS  date: valid date
+PASS  date: fake day (Feb 31)
+PASS  date: wrong format
+PASS  date: empty
+PASS  time: valid time
+PASS  time: empty is allowed
+PASS  time: hour 25
+PASS  time: letters
+PASS  inList: allowed value
+PASS  inList: not allowed value
+PASS  firstError: all fine
+PASS  firstError: gives first one
+
+Passed: 18   Failed: 0
