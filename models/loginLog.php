@@ -3,6 +3,7 @@
 
 class loginLog{
   private $db;
+  function __construct($db) {$this->db = $db;}
 //action login suc, login fail, etc.
 function add($userId, $email, $action){
   $st = $this->db->prepare("INSERT INTO auth_log (user_id, email, action, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)");
