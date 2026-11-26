@@ -1,8 +1,8 @@
 <?php
 class AuthController extends Controller {
     private $logs;
-    function _construct($db){
-        parent::_construct($db);
+    function __construct($db){
+        parent::__construct($db);
         $this->logs = new loginLog($db);
     }
     
@@ -25,7 +25,10 @@ class AuthController extends Controller {
                 }
                 $this->flash('error', 'Wrong email or password');
             } else {
+                $this->users->resetFailed($u['user_id']);
+                session_regenerate_id(true);
                 $_SESSION['uid'] = $u['user_id'];
+                $this->logs->add($u['user_id'], $email, 'login_success');
                 $this->flash('success', 'Welcome ' . $u['name'] . '!');
                 $this->go('dashboard');
             }
@@ -63,7 +66,7 @@ class AuthController extends Controller {
             session_destroy();
     }
         $this->go('login');
-
+    }
     // create admin account form
     function admin() {
         $this->needAdmin();
