@@ -1,6 +1,7 @@
 <?php
 // router, every page goes through here
-session_start();
+require 'security/securityCheck.php';
+startSecureSession();
 require 'config/db.php';
 
 function e($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }  // escapes < > " ' so user text can't run as code (XSS)
