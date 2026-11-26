@@ -82,7 +82,7 @@ class AuthController extends Controller {
     private function check($name, $email, $pw) {
         if ($name == '' || $email == '' || $pw == '') return 'Please fill in all fields';
         if (!preg_match('/^[a-z0-9._-]+@dlsu\.edu\.ph$/', $email)) return 'Please use a valid DLSU email';
-        if (strlen($pw) < 6) return 'Password must be at least 6 characters';
+        if (passCheck($pw)) return passCheck($pw);
         if ($this->users->findByEmail($email)) return 'Email is already registered';
         return null;
     }
