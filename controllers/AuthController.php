@@ -14,7 +14,15 @@ class AuthController extends Controller {
             $u = $this->users->findByEmail($email);
             if ($email == '' || $pw == '') {
                 $this->flash('error', 'Please fill in all fields');
-            } elseif (!$u || $u['password'] != $pw) {
+            }elseif ($u && $this->users->isLocked($u['user_id'])){
+                $this->logs->add($u['user_id'], $email, 'login_failed');
+                $this->flash('error', 'Account locked, try again after 15 minutes');
+            }elseif (!$u || $u['password'] != $pw) {
+                $this->logs->add($u ? $u['user_id'] : null, $email, 'login_failed');
+                if ($u){
+                    $this->users->addFailed($u['user_id']);
+                    if ($this->users->isLocked($u['user_id'])) $this->logs->add($u['user_id'], $email, 'lockout');
+                }
                 $this->flash('error', 'Wrong email or password');
             } else {
                 $_SESSION['uid'] = $u['user_id'];
@@ -38,18 +46,23 @@ class AuthController extends Controller {
             if ($err) {
                 $this->flash('error', $err);
             } else {
+                session_regenerate_id(true);
                 $_SESSION['uid'] = $this->users->create($name, $email, $pw, $role);
                 $this->flash('success', 'Account created!');
+                $this->logs->add($_SESSION['uid'], $email, 'login_success');
                 $this->go('dashboard');
             }
         }
         $this->view('auth', ['tab' => 'signup']);
     }
 
-    function logout() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') session_destroy();
-        $this->go('login');
+    function logout(){
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            $u = $this->user();
+            if($u) $this->logs->add($u['user_id'], $u['email'], 'logout');
+            session_destroy();
     }
+        $this->go('login');
 
     // create admin account form
     function admin() {
