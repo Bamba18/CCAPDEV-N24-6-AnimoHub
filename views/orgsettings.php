@@ -21,7 +21,9 @@ require 'views/layout/header.php';
     </div>
     <button class="btn small" type="submit">Open</button>
     <a class="btn small outline" href="index.php?page=org&amp;id=<?= (int)$org['org_id'] ?>">View org page</a>
-    <a class="btn small outline" href="index.php?page=requests&amp;id=<?= (int)$org['org_id'] ?>">Review requests</a>
+    <?php if ($isPres): ?>
+      <a class="btn small outline" href="index.php?page=requests&amp;id=<?= (int)$org['org_id'] ?>">Review requests</a>
+    <?php endif; ?>
   </form>
 
   <?php // ---------- info ---------- ?>

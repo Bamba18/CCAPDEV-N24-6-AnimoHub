@@ -37,14 +37,14 @@ var defaultCourses = [
    ]}
 ]
 var defaultUsers = [
-  {email:'admin@dlsu.edu.ph', password:"admin123", name:'ITS Admin', role:"admin", enlisted:[]},
-  {email:"juan_delacruz@dlsu.edu.ph", password:"pass123", name:"Juan Dela Cruz", role:'student',
+  {email:'admin@dlsu.edu.ph', name:'ITS Admin', role:"admin", enlisted:[]},
+  {email:"juan_delacruz@dlsu.edu.ph", name:"Juan Dela Cruz", role:'student',
     enlisted:[{code:'CCPROG3', sec:'S11'}, {code:"CCAPDEV",sec:"S11"},{code:"ITNET04",sec:"S11"}]},
-  {email:"maria_santos@dlsu.edu.ph",password:'pass123', name:'Maria Santos',role:"student",
+  {email:"maria_santos@dlsu.edu.ph", name:'Maria Santos',role:"student",
     enlisted:[{code:'CCAPDEV',sec:"S12"}, {code:"CSALGCM",sec:"S11"}]},
-  {email:"pedro_reyes@dlsu.edu.ph", password:"pass123", name:"Pedro Reyes", role:"student", enlisted:[]},
-  {email:"ana_lim@dlsu.edu.ph", password:"pass123", name:'Ana Lim', role:"student", enlisted:[]},
-  {email:'jose.rizal@dlsu.edu.ph', password:"pass123", name:"Jose Rizal", role:"teacher", enlisted:[]}
+  {email:"pedro_reyes@dlsu.edu.ph", name:"Pedro Reyes", role:"student", enlisted:[]},
+  {email:"ana_lim@dlsu.edu.ph", name:'Ana Lim', role:"student", enlisted:[]},
+  {email:'jose.rizal@dlsu.edu.ph', name:"Jose Rizal", role:"teacher", enlisted:[]}
 ]
 var defaultOrgs = [
 	{id:1, name:"Computer Society", desc:'The home of CCS students who love coding, hackathons and tech talks. We hold workshops every term.', color:'#0b6b3a', recruiting:true, officerHiring:false,

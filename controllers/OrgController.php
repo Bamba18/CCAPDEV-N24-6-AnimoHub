@@ -68,10 +68,10 @@ class OrgController extends Controller {
         }
 
         // null when the user is not a member of this org
-        $myRole = $this->orgs->roleOf($user['user_id'], $id);
+        $myRole = $user['role'] === 'student' ? $this->orgs->roleOf($user['user_id'], $id) : null;
 
         // admins can manage every org, students only if their role has can_manage
-        $canManage = $user['role'] == 'admin' || ($myRole && $myRole['can_manage']);
+        $canManage = $this->users->canManageOrg($user, $id);
 
         // member 4: events + announcements cards. members-only announcements are only for members and admins
         if ($myRole || $user['role'] == 'admin') {
@@ -85,6 +85,7 @@ class OrgController extends Controller {
             'officers' => $this->orgs->officers($id),
             'myRole' => $myRole,
             'canManage' => $canManage,
+            'canDecide' => $this->users->canManageOrg($user, $id, true),
             'events' => EventModel::getAll($id),
             'announcements' => $announcements
         ]);
@@ -109,8 +110,7 @@ class OrgController extends Controller {
 
         $myOrgs = MemberModel::managedOrgs($user);
         if (count($myOrgs) == 0) {
-            $this->flash('error', 'You do not manage any organization');
-            $this->go('organizations');
+            $this->deny();
         }
 
         // no id in the url (navbar link)? open the first org he can manage
@@ -126,10 +126,7 @@ class OrgController extends Controller {
         }
 
         // enforces role check: Only allow if the user can manage the organization
-        if (!($user['role'] == 'admin' || canManageOrg($user['user_id'], $id))) {
-            $this->flash('error', 'Access Denied: You do not have permission to manage this organization.');
-            $this->go('org&id=' . $id);
-        }
+        $this->needOrg($id);
 
         $this->view('orgsettings', [
             'org' => $org,
@@ -138,7 +135,7 @@ class OrgController extends Controller {
             'announcements' => AnnouncementModel::getAll($id),
             'members' => MemberModel::getOrgMembers($id),
             // only the president (or an admin) can change roles and remove members
-            'isPres' => $user['role'] == 'admin' || isPresident($user['user_id'], $id)
+            'isPres' => $this->users->canManageOrg($user, $id, true)
         ]);
     }
 
@@ -149,13 +146,9 @@ class OrgController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] != 'POST') $this->go('orgsettings');
 
         $orgId = (int)($_POST['org_id'] ?? 0);
-        $userId = $user['user_id'];
 
         // enforces role check: Only allow if the user can manage the organization
-        if (!($user['role'] == 'admin' || canManageOrg($userId, $orgId))) {
-            $this->flash('error', 'Access Denied: You do not have permission to manage this organization.');
-            $this->go('org&id=' . $orgId);
-        }
+        $this->needOrg($orgId);
 
         $data = [
             'description' => trim($_POST['description'] ?? ''),
@@ -194,10 +187,7 @@ class OrgController extends Controller {
         $role = $_POST['role'] ?? '';
         $back = 'orgsettings&id=' . $orgId;
 
-        if (!($user['role'] == 'admin' || isPresident($user['user_id'], $orgId))) {
-            $this->flash('error', 'Only the president can change roles');
-            $this->go($back);
-        }
+        $this->needOrg($orgId, true);
 
         $member = MemberModel::getMember($orgId, $studentId);
         if (!$member) {
@@ -233,10 +223,7 @@ class OrgController extends Controller {
         $studentId = (int)($_POST['student_id'] ?? 0);
         $back = 'orgsettings&id=' . $orgId;
 
-        if (!($user['role'] == 'admin' || isPresident($user['user_id'], $orgId))) {
-            $this->flash('error', 'Only the president can remove members');
-            $this->go($back);
-        }
+        $this->needOrg($orgId, true);
 
         $member = MemberModel::getMember($orgId, $studentId);
         if (!$member) {

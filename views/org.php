@@ -39,6 +39,8 @@ require 'views/layout/header.php';
       <?php // the settings page belongs to Member 4, this button just links to it ?>
       <?php if ($canManage): ?>
         <a class="btn outline contrast" href="index.php?page=orgsettings&amp;id=<?= (int)$org['org_id'] ?>">Manage Organization</a>
+      <?php endif; ?>
+      <?php if ($canDecide): ?>
         <a class="btn outline contrast" href="index.php?page=requests&amp;id=<?= (int)$org['org_id'] ?>">Review Requests</a>
       <?php endif; ?>
     </div>

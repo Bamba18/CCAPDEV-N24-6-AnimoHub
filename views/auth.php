@@ -17,11 +17,14 @@ require 'views/layout/header.php';
     <form method="post" action="index.php?page=login">
       <div class="field">
         <label for="liEmail">DLSU Email</label>
-        <input type="email" id="liEmail" name="email" placeholder="first_last@dlsu.edu.ph" required>
+        <input type="email" id="liEmail" name="email" value="<?= e($rememberedEmail ?? '') ?>" placeholder="first_last@dlsu.edu.ph" required>
       </div>
       <div class="field">
         <label for="liPass">Password</label>
         <input type="password" id="liPass" name="password" required>
+      </div>
+      <div class="field">
+        <label><input type="checkbox" name="remember_email" value="1" <?= !empty($rememberedEmail) ? 'checked' : '' ?>> Remember email</label>
       </div>
       <button class="btn" type="submit" style="width:100%">Login</button>
     </form>
@@ -33,8 +36,8 @@ require 'views/layout/header.php';
       </div>
       <div class="field">
         <label for="suEmail">DLSU Email</label>
-        <input type="email" id="suEmail" name="email" value="<?= e($_POST['email'] ?? '') ?>" oninput="checkEmail()" placeholder="first_last@dlsu.edu.ph" required>
-        <div class="muted" id="roleHint"></div>
+        <input type="email" id="suEmail" name="email" value="<?= e($_POST['email'] ?? '') ?>" placeholder="first_last@dlsu.edu.ph" required>
+        <div class="muted">Student signup only. Ask an admin for a professor account.</div>
       </div>
       <div class="field">
         <label for="suPass">Password</label>
@@ -46,29 +49,8 @@ require 'views/layout/header.php';
       </div>
       <button class="btn" type="submit" style="width:100%">Create Account</button>
     </form>
-    <script>
-    function checkEmail() {
-      var email = document.getElementById('suEmail').value.trim().toLowerCase();
-      var local = email.split('@')[0];
-      var hint = document.getElementById('roleHint');
-      var ok = /^[a-z0-9._-]+@dlsu\.edu\.ph$/.test(email);
-      if (email == '') hint.innerText = '';
-      else if (!ok || (local.indexOf('_') == -1 && local.indexOf('.') == -1)) hint.innerText = 'Use your DLSU email (student: first_last@dlsu.edu.ph, professor: first.last@dlsu.edu.ph)';
-      else hint.innerText = 'Detected account type: ' + (local.indexOf('_') != -1 ? 'student' : 'professor');
-    }
-    checkEmail();
-    </script>
     <?php endif; ?>
   </div>
 
-  <div class="card muted">
-    <b>Demo accounts</b><br>
-    Admin: admin@dlsu.edu.ph / admin123<br>
-    President: juan_delacruz@dlsu.edu.ph / pass123<br>
-    Officer: maria_santos@dlsu.edu.ph / pass123<br>
-    Member: pedro_reyes@dlsu.edu.ph / pass123<br>
-    Non-member: ana_lim@dlsu.edu.ph / pass123<br>
-    Professor: jose.rizal@dlsu.edu.ph / pass123
-  </div>
 </div>
 <?php require 'views/layout/footer.php'; ?>

@@ -56,8 +56,8 @@ class DashboardController extends Controller {
             }
         }
 
-        // admins and officers/presidents also see how many requests are waiting
-        if ($this->users->canManage($user)) {
+        // requests are handled by the president of that org or an admin
+        if ($this->users->canManage($user, true)) {
             $cards[] = ['Pending requests', $stats->pendingRequests($user)];
         }
 

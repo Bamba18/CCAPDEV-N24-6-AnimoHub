@@ -53,6 +53,7 @@ class MemberModel {
             $stmt = $conn->query("SELECT org_id, name FROM organization ORDER BY name");
             return $stmt->fetchAll();
         }
+        if ($user['role'] !== 'student') return [];
         $stmt = $conn->prepare("SELECT o.org_id, o.name
                 FROM membership m
                 JOIN student s ON s.student_id = m.student_id

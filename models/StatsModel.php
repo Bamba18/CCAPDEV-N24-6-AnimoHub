@@ -79,7 +79,7 @@ class StatsModel {
     }
 
     // how many applications + resignations are waiting
-    // admin sees all of them, an officer only sees the orgs he can manage
+    // admin sees all of them, a president only sees his own orgs
     function pendingRequests($user) {
         if ($user['role'] == 'admin') {
             $st = $this->db->query("SELECT COUNT(*) FROM application WHERE status = 'pending'");
@@ -93,7 +93,7 @@ class StatsModel {
                 JOIN membership m ON m.org_id = a.org_id
                 JOIN student s ON s.student_id = m.student_id
                 JOIN org_role r ON r.role_id = m.role_id
-                WHERE a.status = 'pending' AND s.user_id = ? AND r.can_manage = 1");
+                WHERE a.status = 'pending' AND s.user_id = ? AND r.role_name = 'President'");
         $st->execute([$user['user_id']]);
         $apps = (int) $st->fetchColumn();
 
@@ -101,7 +101,7 @@ class StatsModel {
                 JOIN membership m ON m.org_id = x.org_id
                 JOIN student s ON s.student_id = m.student_id
                 JOIN org_role r ON r.role_id = m.role_id
-                WHERE x.status = 'pending' AND s.user_id = ? AND r.can_manage = 1");
+                WHERE x.status = 'pending' AND s.user_id = ? AND r.role_name = 'President'");
         $st->execute([$user['user_id']]);
         $res = (int) $st->fetchColumn();
 

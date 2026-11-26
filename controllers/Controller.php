@@ -24,7 +24,13 @@ class Controller {
     }
 
     protected function user() {
-        return isset($_SESSION['uid']) ? $this->users->findById($_SESSION['uid']) : null;
+        if (!isset($_SESSION['uid'])) return null;
+        $u = $this->users->findById($_SESSION['uid']);
+        if (!$u || !in_array($u['role'], ['admin', 'professor', 'student'], true)) {
+            unset($_SESSION['uid']);
+            return null;
+        }
+        return $u;
     }
 
     protected function needLogin() {
@@ -34,8 +40,25 @@ class Controller {
     }
 
     protected function needAdmin() {
+        return $this->needRole('admin');
+    }
+
+    // check the role from the database, not a hidden field or a cookie
+    protected function needRole($role) {
         $u = $this->needLogin();
-        if ($u['role'] != 'admin') $this->go('dashboard');
+        if ($u['role'] !== $role) $this->deny();
         return $u;
+    }
+
+    protected function needOrg($orgId, $presidentOnly = false) {
+        $u = $this->needLogin();
+        if (!$this->users->canManageOrg($u, $orgId, $presidentOnly)) $this->deny();
+        return $u;
+    }
+
+    protected function deny() {
+        http_response_code(403);
+        $this->view('forbidden');
+        exit;
     }
 }

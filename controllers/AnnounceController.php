@@ -23,10 +23,7 @@ class AnnounceController extends Controller {
         }
 
         // enforces role check: Only allow if the user can manage the organization
-        if (!($user['role'] == 'admin' || canManageOrg($user['user_id'], $orgId))) {
-            $this->flash('error', 'Access Denied: You do not have permission to manage this organization.');
-            $this->go('org&id=' . $orgId);
-        }
+        $this->needOrg($orgId);
 
         $back = 'orgsettings&id=' . $orgId;
 

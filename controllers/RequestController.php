@@ -2,7 +2,7 @@
 // applications and resignations of the orgs
 //   apply    (POST) a student applies to join or to be officer
 //   resign   (POST) a member asks to leave
-//   index    (GET)  the officers see the waiting requests of one org
+//   index    (GET)  the president or admin sees the waiting requests of one org
 //   decide   (POST) approve / reject / accept / decline
 //
 // role ids in the org_role table: 5 = Officer, 6 = Member
@@ -23,7 +23,7 @@ class RequestController extends Controller {
     // ---------- student side ----------
 
     function apply() {
-        $user = $this->needLogin();
+        $user = $this->needRole('student');
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             $this->go('organizations');
@@ -51,10 +51,6 @@ class RequestController extends Controller {
         // where to go back to after every check
         $back = 'org&id=' . $orgId;
 
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students can apply');
-            $this->go($back);
-        }
 
         if ($reason == '' || mb_strlen($reason) > 500) {
             $this->flash('error', 'Please write your reason (max 500 characters)');
@@ -106,7 +102,7 @@ class RequestController extends Controller {
     }
 
     function resign() {
-        $user = $this->needLogin();
+        $user = $this->needRole('student');
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             $this->go('organizations');
@@ -129,10 +125,6 @@ class RequestController extends Controller {
 
         $back = 'org&id=' . $orgId;
 
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students can resign');
-            $this->go($back);
-        }
 
         $studentId = $this->members->getStudentId($user['user_id']);
         $current = $this->members->getRole($studentId, $orgId);
@@ -159,9 +151,9 @@ class RequestController extends Controller {
         $this->go($back);
     }
 
-    // ---------- officer / president / admin side ----------
+    // ---------- president / admin side ----------
 
-    // the page with the waiting requests of one org
+    // only the president of this org or an admin can review requests
     function index() {
         $user = $this->needLogin();
 
@@ -176,10 +168,7 @@ class RequestController extends Controller {
             $this->go('organizations');
         }
 
-        if (!$this->canManage($user, $orgId)) {
-            $this->flash('error', 'You cannot manage this organization');
-            $this->go('org&id=' . $orgId);
-        }
+        $this->needOrg($orgId, true);
 
         $this->view('requests', [
             'org' => $org,
@@ -209,6 +198,11 @@ class RequestController extends Controller {
             $answer = $_POST['answer'];
         }
 
+        if (!in_array($kind, ['application', 'resignation'], true) || !in_array($answer, ['yes', 'no'], true)) {
+            $this->flash('error', 'Invalid request action');
+            $this->go('organizations');
+        }
+
         // get the request from the database
         if ($kind == 'application') {
             $request = $this->applications->find($id);
@@ -224,10 +218,7 @@ class RequestController extends Controller {
         $orgId = $request['org_id'];
         $back = 'requests&id=' . $orgId;
 
-        if (!$this->canManage($user, $orgId)) {
-            $this->flash('error', 'You cannot manage this organization');
-            $this->go('org&id=' . $orgId);
-        }
+        $this->needOrg($orgId, true);
 
         if ($request['status'] != 'pending') {
             $this->flash('error', 'This request was already answered');
@@ -239,13 +230,21 @@ class RequestController extends Controller {
         if ($kind == 'application') {
             if ($answer == 'yes') {
                 if ($request['role_id'] == 5) {
+                    $current = $this->members->getRole($studentId, $orgId);
+                    if (!$current || $current['role_name'] !== 'Member') {
+                        $this->flash('error', 'Only a current member can be promoted to officer');
+                        $this->go($back);
+                    }
                     // officer application, the student is already a member so only the role changes
                     $this->members->setRole($studentId, $orgId, 5);
-                } else {
+                } elseif ($request['role_id'] == 6) {
                     // member application, only add him if he is not in the org already
                     if (!$this->members->getRole($studentId, $orgId)) {
                         $this->members->add($studentId, $orgId, 6);
                     }
+                } else {
+                    $this->flash('error', 'Invalid application role');
+                    $this->go($back);
                 }
                 $this->applications->setStatus($id, 'approved');
                 $this->flash('success', 'Application approved');
@@ -256,6 +255,11 @@ class RequestController extends Controller {
         }
         else {
             if ($answer == 'yes') {
+                $current = $this->members->getRole($studentId, $orgId);
+                if ($current && $current['role_name'] === 'President') {
+                    $this->flash('error', 'An admin must replace the president first');
+                    $this->go($back);
+                }
                 $this->members->remove($studentId, $orgId);
                 $this->resignations->setStatus($id, 'accepted');
                 $this->flash('success', 'Resignation accepted');
@@ -268,20 +272,4 @@ class RequestController extends Controller {
         $this->go($back);
     }
 
-    // admin can manage every org, a student only if his role in that org has can_manage
-    private function canManage($user, $orgId) {
-        if ($user['role'] == 'admin') {
-            return true;
-        }
-        if ($user['role'] != 'student') {
-            return false;
-        }
-
-        $studentId = $this->members->getStudentId($user['user_id']);
-        $role = $this->members->getRole($studentId, $orgId);
-        if ($role && $role['can_manage']) {
-            return true;
-        }
-        return false;
-    }
 }

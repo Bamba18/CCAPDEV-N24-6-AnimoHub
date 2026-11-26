@@ -11,11 +11,7 @@ class EnlistmentController extends Controller {
     }
 
     function index() {
-        $user = $this->needLogin();
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students can enlist');
-            $this->go('dashboard');
-        }
+        $user = $this->needRole('student');
 
         $studentId = $this->enlistments->getStudentId($user['user_id']);
 
@@ -28,11 +24,7 @@ class EnlistmentController extends Controller {
     }
 
     function schedule() {
-        $user = $this->needLogin();
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students have a schedule');
-            $this->go('dashboard');
-        }
+        $user = $this->needRole('student');
 
         $studentId = $this->enlistments->getStudentId($user['user_id']);
 
@@ -42,11 +34,7 @@ class EnlistmentController extends Controller {
     }
 
     function enlist() {
-        $user = $this->needLogin();
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students can enlist');
-            $this->go('dashboard');
-        }
+        $user = $this->needRole('student');
 
         // which page to go back to
         $from = 'enlistment';
@@ -60,7 +48,7 @@ class EnlistmentController extends Controller {
         }
 
         $studentId = $this->enlistments->getStudentId($user['user_id']);
-        $section = $this->courses->getSection($_POST['section_id']);
+        $section = $this->courses->getSection((int)($_POST['section_id'] ?? 0));
 
         // check 1: section exists
         if (!$section) {
@@ -103,18 +91,14 @@ class EnlistmentController extends Controller {
     }
 
     function drop() {
-        $user = $this->needLogin();
-        if ($user['role'] != 'student') {
-            $this->flash('error', 'Only students can drop');
-            $this->go('dashboard');
-        }
+        $user = $this->needRole('student');
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             $this->go('enlistment');
         }
 
         $studentId = $this->enlistments->getStudentId($user['user_id']);
-        $section = $this->courses->getSection($_POST['section_id']);
+        $section = $this->courses->getSection((int)($_POST['section_id'] ?? 0));
 
         if (!$section) {
             $this->flash('error', 'Section not found');
