@@ -38,7 +38,7 @@ require 'views/layout/header.php';
       </div>
       <div class="field">
         <label for="suPass">Password</label>
-        <input type="password" id="suPass" name="password" required>
+        <input type="password" id="suPass" name="password" required  minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="At least 8 characters with uppercase, lowercase, number and special character">
       </div>
       <div class="field">
         <label for="suPass2">Confirm Password</label>
