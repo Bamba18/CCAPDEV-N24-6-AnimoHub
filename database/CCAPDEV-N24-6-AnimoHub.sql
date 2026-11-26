@@ -388,3 +388,9 @@ CREATE TABLE auth_log (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES `user`(user_id) ON DELETE SET NULL
 )ENGINE=InnoDB;
+
+INSERT INTO auth_log (user_id, email, action, ip_address, user_agent, created_at) VALUES
+(1, 'admin@dlsu.edu.ph', 'login_success', '127.0.0.1', 'Sample data', '2026-11-20 09:00:00'),
+(16, 'juan_delacruz@dlsu.edu.ph', 'login_failed', '127.0.0.1', 'Sample data', '2026-11-21 09:00:00'),
+(17, 'maria_santos@dlsu.edu.ph', 'lockout', '127.0.0.1', 'Sample data', '2026-11-22 09:00:00'),
+(18, 'pedro_reyes@dlsu.edu.ph', 'logout', '127.0.0.1', 'Sample data', '2026-11-23 09:00:00');
